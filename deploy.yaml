@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webspoon
+  namespace: webspoon
+  labels:
+    run: webspoon
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: webspoon
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        run: webspoon
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTS
+              value: -Xms1024m -Xmx2048m
+          image: sowe/webspoon:1.0
+          imagePullPolicy: IfNotPresent
+          name: webspoon
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - name: webspoon-pvc
+              mountPath: /home/tomcat/
+            - name: webspoon-config-cm
+              mountPath: /usr/local/tomcat/webapps/spoon/WEB-INF/web.xml
+              subPath: web.xml
+            - name: webspoon-secret
+              mountPath: /usr/local/tomcat/webapps/spoon/WEB-INF/spring/security.xml
+              subPath: security.xml
+              readOnly: true
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: webspoon-pvc
+          persistentVolumeClaim:
+            claimName: webspoon-pvc
+        - name: webspoon-config-cm
+          configMap:
+            name: webspoon-config-cm
+        - name: webspoon-secret
+          secret:
+            secretName: webspoon-secret

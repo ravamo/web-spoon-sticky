@@ -1,0 +1,14 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: webspoon-pvc
+  namespace: webspoon
+spec:
+  accessModes:
+    - ReadWriteMany
+    # - ReadWriteOnce
+  storageClassName: standard-rwx
+  resources:
+    requests:
+      storage: 250Mi
